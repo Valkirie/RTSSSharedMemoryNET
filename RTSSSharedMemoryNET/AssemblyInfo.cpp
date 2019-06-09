@@ -12,11 +12,11 @@ using namespace System::Security::Permissions;
 // associated with an assembly.
 //
 [assembly:AssemblyTitleAttribute("RTSSSharedMemoryNET")];
-[assembly:AssemblyDescriptionAttribute("")];
+[assembly:AssemblyDescriptionAttribute("Version modified by Mathieu Villegas in 2019")];
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("")];
 [assembly:AssemblyProductAttribute("RTSSSharedMemoryNET")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c) Spencer Hakim 2014")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c) Spencer Hakim 2014.")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 

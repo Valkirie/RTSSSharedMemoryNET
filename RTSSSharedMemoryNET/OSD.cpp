@@ -184,15 +184,15 @@ namespace RTSSSharedMemoryNET {
                 entry->Flags = (AppFlags)pEntry->dwFlags;
 
                 //instantaneous framerate fields
-                entry->InstantaneousTimeStart = timeFromTickcount(pEntry->dwTime0);
-                entry->InstantaneousTimeEnd = timeFromTickcount(pEntry->dwTime1);
+                entry->InstantaneousTimeStart = pEntry->dwTime0;
+                entry->InstantaneousTimeEnd = pEntry->dwTime1;
                 entry->InstantaneousFrames = pEntry->dwFrames;
-                entry->InstantaneousFrameTime = TimeSpan::FromTicks(pEntry->dwFrameTime * TICKS_PER_MICROSECOND);
+                entry->InstantaneousFrameTime = pEntry->dwFrameTime;
 
                 //framerate stats fields
                 entry->StatFlags = (StatFlags)pEntry->dwStatFlags;
-                entry->StatTimeStart = timeFromTickcount(pEntry->dwStatTime0);
-                entry->StatTimeEnd = timeFromTickcount(pEntry->dwStatTime1);
+                entry->StatTimeStart = pEntry->dwStatTime0;
+                entry->StatTimeEnd = pEntry->dwStatTime1;
                 entry->StatFrames = pEntry->dwStatFrames;
                 entry->StatCount = pEntry->dwStatCount;
                 entry->StatFramerateMin = pEntry->dwStatFramerateMin;
@@ -299,8 +299,4 @@ namespace RTSSSharedMemoryNET {
 
     }
 
-    DateTime OSD::timeFromTickcount(DWORD ticks)
-    {
-        return DateTime::Now - TimeSpan::FromMilliseconds(ticks);
-    }
 }

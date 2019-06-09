@@ -36,7 +36,8 @@ namespace RTSSDemo
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine("{0}:{1}", app.ProcessId, app.Name);
                 Console.ResetColor();
-                Console.WriteLine("{0}, {1}FPS", app.Flags, app.InstantaneousFrames);
+
+                Console.WriteLine("{0}, {1}FPS, {2}", app.Flags, app.InstantaneousFrames, app.InstantaneousFrameTime);
             }
             Console.WriteLine();
 
@@ -45,15 +46,32 @@ namespace RTSSDemo
             using( var osd = new OSD("RTSSDemo") )
             while( true )
             {
-                Console.WriteLine("Enter some text:");
-                var text = Console.ReadLine();
+                    //Console.WriteLine("Enter some text:");
+                    //var text = Console.ReadLine();
 
-                //if we hit Ctrl+C while waiting for ReadLine, it returns null
-                if( text == null )
-                    break;
+                    //if we hit Ctrl+C while waiting for ReadLine, it returns null
+                    /*if( text == null )
+                        break;
 
-                osd.Update(text);
-            }
+                    osd.Update();*/
+
+                    System.Threading.Thread.Sleep(1000);
+                    Console.WriteLine("Current app entries with GPU contexts:");
+                    appEntries = OSD.GetAppEntries().Where(x => (x.Flags & AppFlags.MASK) != AppFlags.None).ToArray();
+                    foreach (var app in appEntries)
+                    {
+                        if (app.InstantaneousTimeEnd != app.InstantaneousTimeStart)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            Console.WriteLine("{0}:{1}", app.ProcessId, app.Name);
+                            Console.ResetColor();
+                            uint fps = (app.InstantaneousFrames * 1000) / (app.InstantaneousTimeEnd - app.InstantaneousTimeStart);
+                            Console.WriteLine("{0}, {1}FPS", app.Flags, fps);
+                        }
+                    }
+                    Console.WriteLine();
+
+                }
         }
     }
 }

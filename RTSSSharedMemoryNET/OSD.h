@@ -34,7 +34,6 @@ namespace RTSSSharedMemoryNET {
     private:
         static void openSharedMemory(HANDLE* phMapFile, LPRTSS_SHARED_MEMORY* ppMem);
         static void closeSharedMemory(HANDLE hMapFile, LPRTSS_SHARED_MEMORY pMem);
-        static DateTime timeFromTickcount(DWORD ticks);
     };
 
     LPCWSTR MBtoWC(const char* str);

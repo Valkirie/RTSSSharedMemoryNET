@@ -16,9 +16,12 @@ namespace RTSSSharedMemoryNET {
         Direct3D9Ex = APPFLAG_D3D9EX,
         Direct3D10  = APPFLAG_D3D10,
         Direct3D11  = APPFLAG_D3D11,
+		Direct3D12  = APPFLAG_D3D12,
+		Direct3D12AFR = APPFLAG_D3D12AFR,
+		Vulkan = APPFLAG_VULKAN,
 
         ProfileUpdateRequested = APPFLAG_PROFILE_UPDATE_REQUESTED,
-        MASK = (APPFLAG_DD | APPFLAG_D3D8 | APPFLAG_D3D9 | APPFLAG_D3D9EX | APPFLAG_OGL | APPFLAG_D3D10  | APPFLAG_D3D11),
+        MASK = (APPFLAG_DD | APPFLAG_D3D8 | APPFLAG_D3D9 | APPFLAG_D3D9EX | APPFLAG_OGL | APPFLAG_D3D10  | APPFLAG_D3D11 | APPFLAG_D3D12 | APPFLAG_D3D12AFR | APPFLAG_VULKAN),
     };
 
     [Flags]
@@ -68,15 +71,15 @@ namespace RTSSSharedMemoryNET {
         AppFlags Flags;
         
         //instantaneous framerate fields
-        DateTime InstantaneousTimeStart;
-        DateTime InstantaneousTimeEnd;
+		DWORD InstantaneousTimeStart;
+		DWORD InstantaneousTimeEnd;
         DWORD InstantaneousFrames;
-        TimeSpan InstantaneousFrameTime;
+		DWORD InstantaneousFrameTime;
 
         //framerate stats fields
         StatFlags StatFlags;
-        DateTime StatTimeStart;
-        DateTime StatTimeEnd;
+        DWORD StatTimeStart;
+        DWORD StatTimeEnd;
         DWORD StatFrames;
         DWORD StatCount;
         DWORD StatFramerateMin;
@@ -125,5 +128,14 @@ namespace RTSSSharedMemoryNET {
         Int64 AudioCapturePTTEventRelease; //2.6+
         Int64 AudioCapturePTTEventPush2; //2.6+
         Int64 AudioCapturePTTEventRelease2; //2.6+
+
+		DWORD	dwPrerecordSizeLimit; //v2.8+
+		DWORD	dwPrerecordTimeLimit; //v2.8+
+
+		//next fields are valid for v2.13 and newer shared memory format only
+		Int64 qwStatTotalTime; //v2.13+
+		array<DWORD>^ dwStatFrameTimeLowBuf = gcnew array<DWORD>(1024);  //v2.13+
+		DWORD	dwStatFramerate1Dot0PercentLow; //v2.13+
+		DWORD	dwStatFramerate0Dot1PercentLow;  //v2.13+
     };
 }
