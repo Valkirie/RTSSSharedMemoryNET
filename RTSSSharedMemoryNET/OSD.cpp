@@ -48,22 +48,27 @@ namespace RTSSSharedMemoryNET {
     {
         HANDLE hMapFile = NULL;
         LPRTSS_SHARED_MEMORY pMem = NULL;
-        openSharedMemory(&hMapFile, &pMem);
+		try {
+			openSharedMemory(&hMapFile, &pMem);
 
-        //find entries and zero them out
-        for(DWORD i=1; i < pMem->dwOSDArrSize; i++)
-        {
-            //calc offset of entry
-            auto pEntry = (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)( (LPBYTE)pMem + pMem->dwOSDArrOffset + (i * pMem->dwOSDEntrySize) );
+			//find entries and zero them out
+			for (DWORD i = 1; i < pMem->dwOSDArrSize; i++)
+			{
+				//calc offset of entry
+				auto pEntry = (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)((LPBYTE)pMem + pMem->dwOSDArrOffset + (i * pMem->dwOSDEntrySize));
 
-            if( STRMATCHES(strcmp(pEntry->szOSDOwner, m_entryName)) )
-            {
-                SecureZeroMemory(pEntry, pMem->dwOSDEntrySize); //won't get optimized away
-                pMem->dwOSDFrame++; //forces OSD update
-            }
-        }
+				if (STRMATCHES(strcmp(pEntry->szOSDOwner, m_entryName)))
+				{
+					SecureZeroMemory(pEntry, pMem->dwOSDEntrySize); //won't get optimized away
+					pMem->dwOSDFrame++; //forces OSD update
+				}
+			}
 
-        closeSharedMemory(hMapFile, pMem);
+			closeSharedMemory(hMapFile, pMem);
+		}
+		catch (...) {
+
+		}
         Marshal::FreeHGlobal(IntPtr((LPVOID)m_entryName));
     }
 
