@@ -210,7 +210,7 @@ namespace RTSSSharedMemoryNET {
                     entry->StatFrameTimeMax = pEntry->dwStatFrameTimeMax;
                     entry->StatFrameTimeCount = pEntry->dwStatFrameTimeCount;
                     //TODO - frametime buffer?
-                    entry->StatFrameTimeBufPos = pEntry->dwStatFrameTimeBufPos;
+                    entry->StatFrameTimeBufFramerate = pEntry->dwStatFrameTimeBufFramerate;
                 }
 
                 //OSD fields
