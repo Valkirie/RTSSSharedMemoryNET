@@ -93,9 +93,9 @@ namespace RTSSSharedMemoryNET {
         DWORD StatFrameTimeCount;
         /* TODO
         DWORD StatFrameTimeBuf[1024];
-        DWORD StatFrameTimeBufFramerate;
-        */
         DWORD StatFrameTimeBufPos;
+        */
+        DWORD StatFrameTimeBufFramerate;
 
         //OSD fields
         int OSDCoordinateX;
