@@ -89,52 +89,60 @@ namespace RTSSSharedMemoryNET {
     ///</summary>
     void OSD::Update(String^ text)
     {
-        if( text == nullptr )
+        if (text == nullptr)
             throw gcnew ArgumentNullException("text");
 
-        LPCSTR lpText = (LPCSTR)Marshal::StringToHGlobalAnsi(text).ToPointer();
-        if( strlen(lpText) > 4095 )
-            throw gcnew ArgumentException("Text exceeds max length of 4095 when converted to ANSI", "text");
+        IntPtr ansiPtr = Marshal::StringToHGlobalAnsi(text);
+        LPCSTR lpText = (LPCSTR)ansiPtr.ToPointer();
 
-        HANDLE hMapFile = NULL;
-        LPRTSS_SHARED_MEMORY pMem = NULL;
-        openSharedMemory(&hMapFile, &pMem);
-
-        //start at either our previously used slot, or the top
-        for(DWORD i=(m_osdSlot == 0 ? 1 : m_osdSlot); i < pMem->dwOSDArrSize; i++)
+        try
         {
-            auto pEntry = (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)( (LPBYTE)pMem + pMem->dwOSDArrOffset + (i * pMem->dwOSDEntrySize) );
+            if (strlen(lpText) > 4095)
+                throw gcnew ArgumentException("Text exceeds max length of 4095 when converted to ANSI", "text");
 
-            //if we need a new slot and this one is unused, claim it
-            if( m_osdSlot == 0 && !strlen(pEntry->szOSDOwner) )
+            HANDLE hMapFile = NULL;
+            LPRTSS_SHARED_MEMORY pMem = NULL;
+            openSharedMemory(&hMapFile, &pMem);
+
+            //start at either our previously used slot, or the top
+            for (DWORD i = (m_osdSlot == 0 ? 1 : m_osdSlot); i < pMem->dwOSDArrSize; i++)
             {
-                m_osdSlot = i;
-                strcpy_s(pEntry->szOSDOwner, m_entryName);
+                auto pEntry = (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)((LPBYTE)pMem + pMem->dwOSDArrOffset + (i * pMem->dwOSDEntrySize));
+
+                //if we need a new slot and this one is unused, claim it
+                if (m_osdSlot == 0 && !strlen(pEntry->szOSDOwner))
+                {
+                    m_osdSlot = i;
+                    strcpy_s(pEntry->szOSDOwner, m_entryName);
+                }
+
+                //if this is our slot
+                if (STRMATCHES(strcmp(pEntry->szOSDOwner, m_entryName)))
+                {
+                    //use extended text slot for v2.7 and higher shared memory, it allows displaying 4096 symbols instead of 256 for regular text slot
+                    if (pMem->dwVersion >= RTSS_VERSION(2, 7))
+                        strncpy_s(pEntry->szOSDEx, lpText, sizeof(pEntry->szOSDEx) - 1);
+                    else
+                        strncpy_s(pEntry->szOSD, lpText, sizeof(pEntry->szOSD) - 1);
+
+                    pMem->dwOSDFrame++; //forces OSD update
+                    break;
+                }
+
+                //in case we lost our previously used slot or something, let's start over
+                if (m_osdSlot != 0)
+                {
+                    m_osdSlot = 0;
+                    i = 1;
+                }
             }
 
-            //if this is our slot
-            if( STRMATCHES(strcmp(pEntry->szOSDOwner, m_entryName)) )
-            {
-                //use extended text slot for v2.7 and higher shared memory, it allows displaying 4096 symbols instead of 256 for regular text slot
-                if( pMem->dwVersion >= RTSS_VERSION(2,7) )
-                    strncpy_s(pEntry->szOSDEx, lpText, sizeof(pEntry->szOSDEx)-1);
-                else
-                    strncpy_s(pEntry->szOSD, lpText, sizeof(pEntry->szOSD)-1);
-
-                pMem->dwOSDFrame++; //forces OSD update
-                break;
-            }
-
-            //in case we lost our previously used slot or something, let's start over
-            if( m_osdSlot != 0 )
-            {
-                m_osdSlot = 0;
-                i = 1;
-            }
+            closeSharedMemory(hMapFile, pMem);
         }
-
-        closeSharedMemory(hMapFile, pMem);
-        Marshal::FreeHGlobal(IntPtr((LPVOID)lpText));
+        finally
+        {
+            Marshal::FreeHGlobal(ansiPtr);
+        }
     }
 
     array<OSDEntry^>^ OSD::GetOSDEntries()
@@ -209,8 +217,7 @@ namespace RTSSSharedMemoryNET {
                     entry->StatFrameTimeAvg = pEntry->dwStatFrameTimeAvg;
                     entry->StatFrameTimeMax = pEntry->dwStatFrameTimeMax;
                     entry->StatFrameTimeCount = pEntry->dwStatFrameTimeCount;
-                    //TODO - frametime buffer?
-                    entry->StatFrameTimeBufPos = pEntry->dwStatFrameTimeBufPos;
+                    entry->StatFrameTimeBufFramerate = pEntry->dwStatFrameTimeBufFramerate;
                 }
 
                 //OSD fields

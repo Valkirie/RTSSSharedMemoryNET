@@ -91,10 +91,8 @@ namespace RTSSSharedMemoryNET {
         DWORD StatFrameTimeAvg;
         DWORD StatFrameTimeMax;
         DWORD StatFrameTimeCount;
-        /* TODO
-        DWORD StatFrameTimeBuf[1024];
+        DWORD StatFrameTimeBuf;
         DWORD StatFrameTimeBufFramerate;
-        */
         DWORD StatFrameTimeBufPos;
 
         //OSD fields
